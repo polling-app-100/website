@@ -11,7 +11,7 @@
     }
 
     async function logout () : Promise<void> {
-        await fetch('http://localhost:5005/auth/logout', { method: 'POST' })
+        await fetch('http://localhost:5005/auth/logout', { method: 'POST', credentials: 'include' })
         .then(() => logoutMsg = 'succesfully logged out')
         .catch(e => logoutMsg = e.error)
         

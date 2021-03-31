@@ -21,15 +21,15 @@
         }
         else {
             let reqBody = { 
-                username, 
-                password
+                username: username.trim(), 
+                password : password.trim()
             }
-            await fetch('http://localhost:5005/auth/login', { method: 'POST', body: JSON.stringify(reqBody), headers: { 'Content-type': 'application/json' } })
+            await fetch('http://localhost:5005/auth/login', {method: 'POST', credentials: 'include', body: JSON.stringify(reqBody), headers: { 'Content-Type': 'application/json' }})
             .then(async (res : any) => { 
                 let data = await res.json() 
-                if (data.status !== 200) {
+                if (res.status !== 200) {
                     logInFailed = true 
-                    failedMsg = data.message
+                    failedMsg = data.error
                     setTimeout(() => logInFailed = false, 5000)
                 } else {
                     isLoggedIn = true
