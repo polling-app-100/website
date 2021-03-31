@@ -1,6 +1,6 @@
 {
-  "name": "TODO",
-  "description": "TODO",
+  "name": "poll-app-100",
+  "description": "Polling app to conduct surveys",
   "version": "0.0.1",
   "scripts": {
     "dev": "sapper dev",
@@ -10,6 +10,7 @@
     "validate": "svelte-check --ignore src/node_modules/@sapper"
   },
   "dependencies": {
+    "bulma": "^0.9.2",
     "compression": "^1.7.1",
     "polka": "next",
     "sirv": "^1.0.0"
