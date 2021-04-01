@@ -1,6 +1,7 @@
 <script lang="typescript">
     import Nav from '../components/Nav.svelte'
     import { fade } from 'svelte/transition'
+    import { goto } from '@sapper/app'
 
     let username : string = ''
     let password : string = ''
@@ -35,6 +36,7 @@
                     isLoggedIn = true
                     LoggedInMsg = data.message
                     setTimeout(() => isLoggedIn = false, 5000)
+                    setTimeout(() => { goto('/main') }, 2000)
                 }
             })
             .catch(async (e : any) => {

@@ -1,6 +1,7 @@
 <script lang="typescript">
     import Nav from '../components/Nav.svelte'
     import { fade } from 'svelte/transition'
+    import { goto } from '@sapper/app'
 
     let username : string = ''
     let password : string = ''
@@ -50,6 +51,9 @@
                     setTimeout(() => {
                         signupSuccess = false 
                     }, 5000)
+                    setTimeout(() => {
+                      goto('/main')
+                    }, 3000)
                 }
             })
 
