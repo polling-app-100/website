@@ -3,6 +3,8 @@
     import { fade } from 'svelte/transition'
     import { goto } from '@sapper/app'
 
+    export let url : string ='http://localhost:5005'
+
     let username : string = ''
     let password : string = ''
     let region : string = 'asia'
@@ -26,6 +28,18 @@
             }, 5000)
         }
         else {
+            if (password.length < 7) {
+              failedSignup = true
+              failedMsg = 'password must be at least 7 characters long'
+
+              setTimeout(() => {
+                failedSignup = false
+                failedMsg = ''
+              }, 3000)
+
+              return 
+            }
+
             let reqBody = { 
             username : username.trim(),
             password : password.trim(),
@@ -33,7 +47,7 @@
             ageGroup
             }
 
-            await fetch('http://localhost:5005/auth/signup', { method:'POST', body: JSON.stringify(reqBody) ,headers: {'Content-type':'application/json'}, credentials: 'include'})
+            await fetch(url + '/auth/signup', { method:'POST', body: JSON.stringify(reqBody) ,headers: {'Content-type':'application/json'}, credentials: 'include'})
             .then(async (res : any) => {
              if (res.status !== 200) {
                     const data : any = await res.json()
@@ -42,7 +56,7 @@
 
                     setTimeout(() => {
                         failedSignup = false
-                    })
+                    }, 3000)
                 } else {
                     const data : any = await res.json()
                     signupSuccess = true 
@@ -116,7 +130,7 @@
 
       <div class="field is-grouped">
         <div class="control">
-          <button class="button is-link" on:click={signup}>Submit</button>
+          <button class="button is-link" on:click={signup}>Signup</button>
         </div>
       </div>
 

@@ -3,6 +3,8 @@
     import { fade } from 'svelte/transition'
     import { goto } from '@sapper/app'
 
+    export let url : string ='http://localhost:5005'
+
     let username : string = ''
     let password : string = ''
 
@@ -25,7 +27,7 @@
                 username: username.trim(), 
                 password : password.trim()
             }
-            await fetch('http://localhost:5005/auth/login', {method: 'POST', credentials: 'include', body: JSON.stringify(reqBody), headers: { 'Content-Type': 'application/json' }})
+            await fetch(url + '/auth/login', {method: 'POST', credentials: 'include', body: JSON.stringify(reqBody), headers: { 'Content-Type': 'application/json' }})
             .then(async (res : any) => { 
                 let data = await res.json() 
                 if (res.status !== 200) {
@@ -72,7 +74,7 @@
 
     <div class="field is-grouped">
         <div class="control">
-          <button class="button is-link" on:click={login}>Submit</button>
+          <button class="button is-link" on:click={login}>Login</button>
         </div>
     </div>
 
