@@ -1,6 +1,7 @@
 <script lang="typescript">
 
     import { fade } from 'svelte/transition';
+    import { goto } from '@sapper/app'
 
     let isActive : number = 0
     let logoutMsg : string = ''
@@ -19,6 +20,9 @@
         setTimeout(() => {
             isLoggedOut = false
         }, 5000)
+        setTimeout(() => {
+            goto('/login')
+        }, 3000)
     }
 </script>
 

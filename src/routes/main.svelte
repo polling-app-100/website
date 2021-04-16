@@ -1,8 +1,10 @@
 <script lang="typescript">
+    export let url : string ='http://localhost:5005'
+
     import Nav from '../components/Nav.svelte'
     import { onMount } from 'svelte'
     import { goto } from '@sapper/app'
-    import { fade } from 'svelte/transition'
+    import { fade, scale, slide } from 'svelte/transition'
 
     let failed : boolean = false 
     let failedMsg : string = ''
@@ -14,8 +16,17 @@
     let updateSuccess : boolean = false
     let updatedMsg : string = ''
 
+    let clickedUpdateTimes : number = 0
+    let buttonState : string = 'false'
+
+    let deleted : boolean = false 
+    let deletedMsg : string = ''
+
+    let clickedDeleteTimes : number = 0
+    let delButtonState : string = 'false'
+
     onMount(async () => {
-        await fetch('http://localhost:5005/auth/user', { credentials: 'include' })
+        await fetch(url + '/auth/user', { credentials: 'include' })
         .then(async (res) => {
             const data = await res.json()
             if (res.status !== 200) {
@@ -36,10 +47,60 @@
         })
     })
 
-    async function updateUser (e) : Promise<void> {
+    function handleClickUpdateUser (e) : void {
         e.preventDefault()
+        clickedUpdateTimes += 1 
+
+        if (clickedUpdateTimes === 1) {
+            buttonState = 'loading'
+        }
+        else if (clickedUpdateTimes === 2) {
+            buttonState = 'true'
+            updateUser()
+            clickedUpdateTimes = 0
+        } 
+
+        setTimeout(() => {
+            buttonState = 'false'
+        },
+        3000)
+    }
+
+    function handleClickDeleteUser (e) : void {
+        e.preventDefault()
+        clickedDeleteTimes += 1 
+
+        if (clickedDeleteTimes === 1) {
+            delButtonState = 'loading'
+        }
+        else if (clickedDeleteTimes === 2) {
+            delButtonState = 'true'
+            deleteUser()
+            clickedDeleteTimes = 0
+        } 
+    }
+
+    async function deleteUser () : Promise<void> {
+        await fetch(url + '/auth/deleteUser', { method: 'DELETE',headers : { 'Content-Type': 'application/json' }, credentials: 'include' })
+        .then(async (res: any) => {
+            const data = await res.json()
+            deleted = true 
+            deletedMsg = data.message
+
+            setTimeout(() => {
+                deleted = false 
+                deletedMsg = ''
+            }, 5000)
+            setTimeout(() => {
+                goto('signup')
+            }, 2000)
+            
+        })
+    }
+
+    async function updateUser () : Promise<void> {
         const reqBody = { username, region, ageGroup }
-        await fetch('http://localhost:5005/auth/user', { method: 'PUT', body: JSON.stringify(reqBody), headers : { 'Content-Type': 'application/json' }, credentials: 'include' })
+        await fetch(url + '/auth/user', { method: 'PUT', body: JSON.stringify(reqBody), headers : { 'Content-Type': 'application/json' }, credentials: 'include' })
         .then(async (res) => {
             const data = await res.json()
             updateSuccess = true 
@@ -61,7 +122,7 @@
         <h1 class="title"> Welcome <br/> <span class="username"> { username } </span> </h1>
 
         <div class="settings box">
-            <h2 class="subtitle"> Settings </h2>
+            <h2 class="subtitle"> Personal Settings </h2>
 
             <form class="form">
 
@@ -101,7 +162,15 @@
                     </div>
                 </div>
 
-                <button class="button is-primary" on:click={updateUser}> Update Settings </button>
+                <button class="button is-primary" on:click={handleClickUpdateUser}>
+                    {#if buttonState === 'false'}
+                        <span in:scale={{ duration: 2000 }}>Update User Settings</span>
+                    {:else if buttonState === 'loading'}
+                        Please Confirm
+                    {:else if buttonState === 'true'}
+                        User Settings Updated
+                    {/if}
+                </button>
             </form>
 
             {#if updateSuccess} 
@@ -111,6 +180,39 @@
             {/if}
         </div>
         
+    </div>
+
+    <div class="section">
+        <div class="danger box">
+            <h1 class="danger subtitle">Danger Zone</h1>
+        
+            <div class="container columns">
+                <div class="column is-four-fifths"> 
+                    <h2 class="topicTitle">
+                        Delete Account <br/>
+                    </h2>
+                    once you delete your account there will be no going back
+                </div>
+                <div class="column">
+                    <button class="is-danger button" on:click={handleClickDeleteUser}>
+                        {#if delButtonState === 'false'}
+                            <span in:scale={{ duration: 2000 }}>Delete User</span>
+                        {:else if delButtonState === 'loading'}
+                            Please Confirm
+                        {:else if delButtonState === 'true'}
+                            User Deleted
+                        {/if}
+                    </button>
+                </div>
+                
+            </div>
+
+            {#if deleted}
+                <div class="notification is-danger" transition:slide>
+                    {deletedMsg}
+                </div>
+            {/if}
+        </div>
     </div>
 {/if}
 
@@ -139,7 +241,19 @@
         margin: 1em 2em;
     }
 
-    .button {
+    .button.is-primary {
         margin-top: 15px;
+    }
+    .danger.box {
+        border: 2px solid red;
+        border-radius: 13px;
+        margin: 0 2em;
+    }
+    .danger.subtitle {
+        font-size: 1.2em;
+    }
+    .topicTitle {
+        font-size: 1em;
+        font-weight: 800;
     }
 </style>
