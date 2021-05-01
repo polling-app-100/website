@@ -14,8 +14,7 @@
     import io from 'socket.io-client'
 
     // voted counter
-    $: voteCounter = 0
-
+    
     // local voted tracker to unsync from sibling component
     $: localVoteTracker = false
 
@@ -29,13 +28,19 @@
         currentVotes += 1
     })
 
+    socket.on('rejected', () => {
+        alert('you have already voted here')
+        voted = true
+        currentVotes -= 1
+        localVoteTracker = true
+    })
+
     function handleVote(e) {
         if (voted === true) {
             alert('you have already voted')
             return
         }
         e.preventDefault()
-        voteCounter += 1
         currentVotes += 1
         voted = true
         dispatcher('vote')
@@ -47,7 +52,6 @@
 
     function handleUnvote(e) {
         e.preventDefault()
-        voteCounter -= 1
         currentVotes -= 1
         voted = false
         dispatcher('vote')
