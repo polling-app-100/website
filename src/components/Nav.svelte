@@ -41,8 +41,11 @@
   
     <div class="navbar-menu {isActive % 2 === 0 ? null : 'is-active'}">
         <div class="navbar-start">
-            <a class="navbar-item" href="/">
+            <a class="navbar-item" href="/main">
                 Home
+            </a>
+            <a class="navbar-item" href="/user">
+                User
             </a>
         </div>
     
