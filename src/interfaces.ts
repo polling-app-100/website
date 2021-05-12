@@ -34,13 +34,32 @@ export interface Poll {
 }
 
 // users
+
+// the array of objects for voting history
+export interface VotedIn {
+    _id?: String
+    pollId: string
+    optionId: string
+}
+
+// user object for app
 export interface User {
     username: string
     password: string
     _id: string
     ageGroup: string
     region: string
-    votedIn: Array<string>
+    votedIn: Array<VotedIn>
     createdPolls: Array<string>
+    error?: string
+}
+
+export interface Message {
+    // vote and unvote messge channel
+    // mutual with vote and unvote
+    pollId: string
+    optionId: string
+    // exclusive to vote events
+    voterId?: string
     error?: string
 }

@@ -1,34 +1,54 @@
 <script context="module">
-    export async function preload (page, session) {
+    export async function preload (page, _) {
         const { id } = page.params
 
         const res = await this.fetch('http://localhost:5005/api/poll/' + id)
         const poll = await res.json()
-        
-        const resAu = await this.fetch('http://localhost:5005/auth/author/' + poll.author)
+
+        const resAu = await this.fetch('http://localhost:5005/auth/author/', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ _id: poll.author })
+        })
         const author = await resAu.json()
         
         const resVoter = await this.fetch('http://localhost:5005/auth/user', {credentials: 'include'})
         const voter = await resVoter.json()
 
-        return { poll ,author, voter }
+        return { poll, author, voter }
     }
 </script>
 
 <script lang="typescript">
     import Nav from '../components/Nav.svelte'
-    import type { Poll, User } from '../interfaces'
+    import type { Poll, User, VotedIn } from '../interfaces'
     import Vote from '../components/Vote.svelte'
+    import { onMount } from 'svelte'
 
     export let poll : Poll
     export let author
     export let voter : User
 
-    const dateObj = new Date(poll.createdAt)
-    const date = dateObj.getDate() + '/' + dateObj.getMonth() + '/' + dateObj.getFullYear()
-
     let votedCounter = 0
     let voted = false
+
+    onMount(() => {
+        console.log('hi')
+        if (!voter.votedIn) {
+            return voted = false
+        }
+        else {
+            voter.votedIn.forEach((vote : VotedIn) => {
+            if (vote._id === poll._id) {
+              voted = true
+              console.log('voted')
+            }
+         })
+        }
+    })
+
+    const dateObj = new Date(poll.createdAt)
+    const date = dateObj.getDate() + '/' + dateObj.getMonth() + '/' + dateObj.getFullYear()
 
     function handleVoted() {
         votedCounter += 1
@@ -41,6 +61,7 @@
 </script>
 
 <Nav />
+
 <div class="section">
     <div class="header">
         <div class="title is-1">
@@ -62,6 +83,8 @@
             currentVotes={option.currentVotes} 
             totalVotes={poll.voteCount} 
             voted={voted}
+            geoArea={voter.region}
+            ageGroup={voter.ageGroup}
             on:vote={handleVoted}
             />
         {/each}
