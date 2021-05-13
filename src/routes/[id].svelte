@@ -33,7 +33,6 @@
     let voted = false
 
     onMount(() => {
-        console.log('hi')
         if (!voter.votedIn) {
             return voted = false
         }
