@@ -7,12 +7,14 @@
     let logoutMsg : string = ''
     let isLoggedOut : boolean = false
 
+    const url : string = 'http://localhost:5005'
+
     function displayHiddenLinks () : void {
         isActive += 1
     }
 
     async function logout () : Promise<void> {
-        await fetch('http://localhost:5005/auth/logout', { method: 'POST', credentials: 'include' })
+        await fetch(url + '/auth/logout', { method: 'POST', credentials: 'include' })
         .then(() => logoutMsg = 'succesfully logged out')
         .catch(e => logoutMsg = e.error)
         
@@ -23,6 +25,18 @@
         setTimeout(() => {
             goto('/login')
         }, 3000)
+    }
+
+    async function autoLogin () : Promise<void> {
+        await fetch(url + '/auth/login', { method: 'POST', credentials: 'include' })
+        .then((res) => { 
+            if (res.status === 200) {
+                goto('/main')
+            } else {
+                goto('/login')
+            }
+         })
+         .catch(() => { goto('/login') })
     }
 </script>
 
@@ -56,7 +70,7 @@
                     <a class="button is-primary" href="/signup">
                         <strong>Sign up</strong>
                     </a>
-                    <a class="button is-light" href="/login">
+                    <a class="button is-light" on:click={autoLogin}>
                         Log in
                     </a>
                     <button class="button is-link" on:click={logout}>
