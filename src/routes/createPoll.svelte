@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import Nav from '../components/Nav.svelte'
     import Option from '../components/Option.svelte'
     import { fade } from 'svelte/transition'
     import { goto } from '@sapper/app'
@@ -78,6 +79,8 @@
         result.push(option)
     }
 </script>
+
+<Nav />
 
 <div class="box primary">
     <h2 class="title is-2"> Create Poll </h2>
