@@ -2,6 +2,7 @@
     export let url : string ='http://localhost:5005'
 
     import Nav from '../components/Nav.svelte'
+    import NewPoll from '../components/NewPoll.svelte'
     import { onMount } from 'svelte'
     import { goto } from '@sapper/app'
     import { fade, scale, slide } from 'svelte/transition'
@@ -130,6 +131,8 @@
 {:else}
     <div class="section">
         <h1 class="title"> Welcome <br/> <span class="username"> { username } </span> </h1>
+
+        <NewPoll />
 
         <div class="settings box">
             <h2 class="subtitle"> Personal Settings </h2>

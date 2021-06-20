@@ -70,6 +70,7 @@
                     <a class="button is-primary" href="/signup">
                         <strong>Sign up</strong>
                     </a>
+                    <!-- svelte-ignore a11y-missing-attribute -->
                     <a class="button is-light" on:click={autoLogin}>
                         Log in
                     </a>
