@@ -6,7 +6,9 @@
     import { onMount } from 'svelte'
     import { goto } from '@sapper/app'
     import { fade, scale, slide } from 'svelte/transition'
-    import type { User } from '../interfaces'
+    import type { User, PollObj } from '../interfaces'
+
+    let pollsCreated : Array<PollObj> = []
 
     let failed : boolean = false 
     let failedMsg : string = ''
@@ -20,7 +22,6 @@
 
     let clickedUpdateTimes : number = 0
     let buttonState : string = 'false'
-
     let deleted : boolean = false 
     let deletedMsg : string = ''
 
@@ -42,6 +43,7 @@
                     goto('/login')
                 }, 2000)
             } else {
+                pollsCreated = data.createdPolls
                 username = data.username
                 region = data.region
                 ageGroup = data.ageGroup
@@ -113,6 +115,16 @@
             }, 4000)
         })
     }
+
+    async function deletePoll (id : string) : Promise<void> {
+      await fetch(url + '/api/poll', { method: 'DELETE', body: JSON.stringify({ "_id": id }), headers: { 'Content-Type': 'application/json' }, credentials: 'include' })
+      .then(async (res) => {
+        const data = await res.json()
+        pollsCreated = pollsCreated.filter((pollId) => {
+          return pollId == id
+        })
+      })
+    }
 </script>
 
 <Nav />
@@ -134,6 +146,19 @@
 
         <NewPoll />
 
+        <!-- Created Polls -->
+        <div class="box">
+          <h2 class="subtitle">Polls Created</h2> 
+          {#each pollsCreated as poll}
+            <h3 class="subtitle">{poll.pollTitle}
+               <button class="is-danger button float-right" on:click={() => deletePoll(poll.pollId) }> Delete </button> <a href=/{poll.pollId}> <button class="is-link button float-right" >Visit</button></a>
+            </h3>
+          {/each}
+        </div>
+
+        <!-- Voted -->
+
+        <!-- Personal Settings -->
         <div class="settings box">
             <h2 class="subtitle"> Personal Settings </h2>
 
@@ -268,5 +293,8 @@
     .topicTitle {
         font-size: 1em;
         font-weight: 800;
+    }
+    .float-right {
+      float: right;
     }
 </style>

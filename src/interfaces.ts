@@ -63,3 +63,8 @@ export interface Message {
     voterId?: string
     error?: string
 }
+
+export interface PollObj {
+  pollId: string
+  pollTitle: string
+}
