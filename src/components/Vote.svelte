@@ -1,4 +1,6 @@
 <script lang="typescript">
+    import { writable } from "svelte/store"
+
     // essential poll info
     export let pollId
     export let voterId
@@ -10,6 +12,9 @@
     export let ageGroup
 
     export let user : User
+
+    // svelte store to deal with websocket reactivity
+    const count = writable(currentVotes)
 
     // security props
     export let voted
@@ -31,10 +36,15 @@
                 return
             }
         })
+
     })
 
     // width calculator
-    let width = (currentVotes / totalVotes) * 100
+    let width
+    count.subscribe(n => {
+      $: width = n * 20
+    })
+    
     // local voted tracker to unsync from sibling component
     $: localVoteTracker = false
 
@@ -47,12 +57,16 @@
     socket.on('vote',(message : Message) => {
         if (message.pollId === pollId && message.optionId === optionId) {
             currentVotes += 1
+            totalVotes += 1
+            count.update(n => n+=1)
         }
     })
 
     socket.on('unvote', (message: Message) => {
         if (message.pollId === pollId && message.optionId === optionId) {
             currentVotes -= 1
+            totalVotes -= 1
+            count.update(n => n-=1)
         }
     })
 
@@ -61,6 +75,8 @@
             alert(message.error)
             voted = false
             currentVotes -= 1
+            totalVotes -= 1
+            count.update(n => n--)
             localVoteTracker = false
         }  
     })
@@ -72,6 +88,8 @@
         }
         e.preventDefault()
         currentVotes += 1
+        totalVotes += 1
+        count.update(n => n+=1)
         voted = true
         dispatcher('vote')
         socket.emit('vote',{ pollId: pollId, voterId: voterId, option: optionId, geoArea: geoArea, ageGroup: ageGroup  })
@@ -83,6 +101,8 @@
     function handleUnvote(e) {
         e.preventDefault()
         currentVotes -= 1
+        totalVotes -= 1
+        count.update(n => n-=1)
         voted = false
         dispatcher('vote')
         socket.emit('unvote',{pollId: pollId, voterId: voterId, option: optionId, geoArea: geoArea, ageGroup: ageGroup })
@@ -91,13 +111,15 @@
     }
 </script>
 
+<br />
 <div class="box">
     <div class="title is-4">
         {title}
     </div>
-    <div class="bar" style="width:{width || 5}%">
+    <div class="bar" style="width: {width}px">
         {currentVotes}
     </div>
+    <br/>
     {#if voted === false && localVoteTracker === false }
         <button class="button is-primary" on:click={handleVote}>Vote</button>
     {:else if voted === true && localVoteTracker === true}
@@ -105,11 +127,13 @@
     {:else}
         <button class="button is-primary" on:click={handleVote}>Vote</button>
     {/if}
+
 </div>
 
 <style>
     div.bar {
         background-color: #bbffca;
         color: black;
+        padding: 5px 0px;
     }
 </style>
